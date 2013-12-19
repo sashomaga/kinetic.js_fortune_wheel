@@ -1,0 +1,221 @@
+﻿<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+    #win{
+     position: absolute;
+     top: 100px;
+     left: 700px;
+    }
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+      #container{
+        /*display: none;*/
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <div id="win"></div>
+     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.7.4.min.js"></script>
+    <script defer="defer">
+
+        (function () {
+
+            var stage, layer, group, rotate, number, slice, text, innerGroup, slice = [], angularSpeed, anim, winPointer, i;
+
+            stage = new Kinetic.Stage({
+                container: 'container',
+                width: 600,
+                height: 600
+            });
+
+            layer = new Kinetic.Layer();
+
+            group = new Kinetic.Group({
+                x: 300,
+                y: 300,
+                //width: 200,
+                //height: 200,
+                offset: [0, 0]
+                //rotationDeg: 20
+            });
+
+            rotate = -90; //-90
+            number = 37;
+
+            for (i = 0; i < number; i++) {
+
+                innerGroup = new Kinetic.Group({
+                    x: 0,
+                    y: 0,
+                    rotationDeg: rotate
+                });
+
+                slice = new Kinetic.Wedge({
+                    x: 0,
+                    y: 0,
+                    radius: 200,
+                    angleDeg: 9.72,
+                    fill: getRandomColor(),
+                    //fill: 'red',
+                    stroke: 'black',
+                    strokeWidth: 0,
+
+                });
+                slice.value = i;
+                rotate += 9.7297;
+
+                /* text */
+                text = new Kinetic.Text({
+                    x: -20,
+                    y: 180,
+                    text: i,
+                    fontFamily: 'Calibri',
+                    fontSize: 10,
+                    fill: 'black',
+                    visible: true,
+                    stroke: 'black',
+                    strokeWidth: 1,
+                    padding: 5
+                });
+
+                innerGroup.add(slice);
+                innerGroup.add(text);
+                group.add(innerGroup);
+
+            }
+
+
+
+
+
+            layer.add(group);
+
+
+            angularSpeed = Math.PI / 2;
+            anim = new Kinetic.Animation(function (frame) {
+                var angleDiff = frame.timeDiff * angularSpeed / 1000;
+                var speed = Math.random() * 999;
+                var val = "0.00" + speed;
+                val = parseFloat(val);
+
+                //angularSpeed -= val; //0.005
+                angularSpeed -= 0.05; //0.005
+                if (angularSpeed < 0) {
+                    this.stop();
+                    getWin();
+
+                }
+                group.rotate(angleDiff);
+            }, layer);
+
+            anim.start();
+
+            $(stage.getContent()).on('click', function () {
+                angularSpeed = Math.PI / 2;
+                anim.start();
+            })
+
+            function getRandomColor() {
+                return '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6);
+            }
+
+            var test = new Kinetic.Shape({
+                drawFunc: function (context) {
+                    context.beginPath();
+                    context.moveTo(300, 150);
+                    context.lineTo(300, 160);
+                    context.closePath();
+                    context.fillStrokeShape(this);
+                },
+                fill: 'red',
+                stroke: 'red',
+                strokeWidth: 1
+            });
+            //layer.add(test);
+
+            winPointer = new Kinetic.Shape({
+                drawFunc: function (context) {
+                    context.beginPath();
+                    context.moveTo(298, 100);
+                    context.lineTo(298, 110);
+                    context.closePath();
+                    context.fillStrokeShape(this);
+                },
+                fill: '#00D2FF',
+                stroke: 'black',
+                strokeWidth: 4
+            });
+
+
+
+            function getWin() {
+
+                var intersection, intersection2, win, tx, winText;
+
+                intersection = stage.getIntersection({
+                    x: 300,
+                    y: 160
+                });
+                intersection2 = stage.getIntersection({
+                    x: 301,
+                    y: 150
+                });
+
+                if (!intersection.shape) {
+                    intersection = intersection2;
+                }
+
+
+                if (intersection.shape.value < 9) {
+                    win = 28 + parseInt(intersection.shape.value);
+                    console.log(intersection.shape.value);
+                } else {
+                    win = intersection.shape.value - 9;
+                }
+
+                tx = layer.find('.win');
+
+                if (tx.length != 0) {
+                    //tx[0].remove();
+                    tx[0].setText("number " + win);
+
+                } else {
+
+                    winText = new Kinetic.Text({
+                        x: 270,
+                        y: 20,
+                        text: "number " + win,
+                        fontFamily: 'Calibri',
+                        fontSize: 20,
+                        fill: 'black',
+                        visible: true,
+                        stroke: 'black',
+                        strokeWidth: 1,
+                        padding: 5,
+                        name: 'win'
+                    });
+                    console.log(winText);
+
+
+                    layer.add(winText);
+                }
+
+
+            }
+
+            layer.add(winPointer);
+            stage.add(layer);
+
+        })();
+
+
+
+
+    </script>
+  </body>
+</html>
